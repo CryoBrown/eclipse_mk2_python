@@ -1,0 +1,4 @@
+Tkinter/ttk: pip install tkinter, but should be included with Python
+Adafruit_Python_GPIO
+
+Pins: Integers only. Use the number in the pin name, i.e. GPIO_26 is 26.
