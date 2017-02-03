@@ -9,11 +9,22 @@ import json
 
 import os
 
+import optparse
+
+parser = optparse.OptionParser()
+
+parser.add_option('--s', action="store", dest="server", help="ip address", default = "127.0.0.1")
+parser.add_option('--c', action="store", dest="client", help="ip address", default = "127.0.0.1")
+options, args = parser.parse_args()
+print "SERVER IP:", options.server
+print "CLIENT IP:", options.client
+
 parent = os.path.pardir
 assets = os.path.join(parent, "assets")
 output = os.path.join(parent, "output")
 
-addr = ('192.168.1.138', 8089)
+address_me = (options.client, 5005)
+address_u = (options.server, 5004)
 #socket.setdefaulttimeout(2.5)
 
 class MainApp:
@@ -45,15 +56,22 @@ class MainApp:
 
         #Ignition
         self.ignition = False
-        
+
+        #Default values
         self.set_safety_defaults()
-        
+
+        #Images
         self.gobutton = PhotoImage(file=os.path.join(assets, "redbutton.gif"))
         self.nobutton = PhotoImage(file=os.path.join(assets, "blackbutton.gif"))
         self.opened = PhotoImage(file=os.path.join(assets, "opened.gif"))
         self.closed = PhotoImage(file=os.path.join(assets, "closed.gif"))
-        self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.clientsocket.connect(addr)
+
+        #Client Socket
+        self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.clientsocket.bind(address_me)
+
+        #self.clientsocket.connect(address_u)
+        #self.clientsocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
     def set_safety_defaults(self):
         self.propulsion = False
@@ -252,13 +270,19 @@ class MainApp:
     def send_data(self):
         dic = {'Fill':self.fill_state, 'Relief':self.relief_state, 'Vent':self.vent_state, 'Ignition':self.ignition}
         out = json.dumps(dic)
+
         print "STATUS:\n"
         print out
-        self.clientsocket.send(out)
+
+        self.clientsocket.sendto(out, address_u)
+        #self.clientsocket.send(out)
 
     def recv_data(self):
         print "begin recv"
-        received = self.clientsocket.recv(1028)
+
+        received, addr = self.clientsocket.recvfrom(1024)
+        #received = self.clientsocket.recv(1024)
+
         print "RECEIVED:\n"
         print received
         try:

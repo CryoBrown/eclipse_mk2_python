@@ -23,7 +23,7 @@ DEFAULT_STATUSES = {'Fill':False, 'Relief':True, 'Vent':False, 'Ignition':False}
 
 OUTPUTS = {'Fill':VALVE_FILL, 'Relief':VALVE_RELIEF, 'Vent':VALVE_VENT, 'Ignition':OUTPUT_IGNITION}
 
-serversocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+serversocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 serversocket.bind(('10.117.77.164', 8089))
 serversocket.listen(1) # become a server socket, maximum 1 connections
 connection, address = serversocket.accept()
