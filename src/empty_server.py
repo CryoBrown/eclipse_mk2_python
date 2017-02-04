@@ -22,15 +22,18 @@ serversocket.bind(address_me)
 #serversocket.listen(1) # become a server socket, maximum 1 connections
 #connection, address = serversocket.accept()
 
+dic = {'load' : 0.0, 'pressure' : 0.0, 'thermo' : 0.0}
+data = json.dumps(dic)
+
 i = 0
 while True:
-        print "----------------------------------------------"
+        #print "----------------------------------------------"
         print "BEGIN LOOP " + str(i)
 
-        dic = {'load' : 0.0, 'pressure' : 0.0, 'thermo' : 0.0}
-        data = json.dumps(dic)
+        #dic = {'load' : 0.0, 'pressure' : 0.0, 'thermo' : 0.0}
+        #data = json.dumps(dic)
 
-        print "DATA:"
+        #print "DATA:"
         print data
         print "SENDING..."
         serversocket.sendto(data, address_u)
@@ -42,9 +45,9 @@ while True:
         received, addr = serversocket.recvfrom(1024)
         #received = connection.recv(1024)
         print "done."
-        print "RECEIVED:"
-        print received
-        print "\n\n"
+        #print "RECEIVED:"
+        #print received
+        #print "\n\n"
         stats = json.loads(received)
 
         print "END LOOP " + str(i)

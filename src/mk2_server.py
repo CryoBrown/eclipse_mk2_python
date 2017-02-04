@@ -1,11 +1,13 @@
 import socket
 import json
 
+import time
+
 import outputs
 
-import optparse
+from optparse import OptionParser
 
-parser = optparse.OptionParser()
+parser = OptionParser()
 
 parser.add_option('--s', action="store", dest="server", help="ip address", default = "127.0.0.1")
 parser.add_option('--c', action="store", dest="client", help="ip address", default = "127.0.0.1")
@@ -20,6 +22,8 @@ address_me = (options.server, 5004)
 address_u = (options.client, 5005)
 serversocket.bind(address_me)
 
+serversocket.settimeout(0.5)
+
 #code for socket.SOCK_STREAM
 #serversocket.listen(1) # become a server socket, maximum 1 connections
 #connection, address = serversocket.accept()
@@ -29,16 +33,21 @@ serversocket.bind(address_me)
 # serversocket.listen(1) # become a server socket, maximum 1 connections
 # connection, address = serversocket.accept()
 
-FILLPIN = 19
+FILLPIN = 13
 VENTPIN = 26
 RELIEFENABLEPIN = 16
 RELIEFPIN = 4 #20 when the wiring permits?
-IGNITIONPIN = 17 #21 when the wiring permits?
+IGNITIONPIN = 18 #21 when the wiring permits?
+HEATERENABLEPIN = 23
 
 VALVE_FILL = outputs.BallValve(FILLPIN)
 VALVE_VENT = outputs.BallValve(VENTPIN)
 
-RELIEF_ENABLE = outputs.Enable(RELIEFENABLEPIN)
+RELIEF_ENABLE = outputs.Enable(RELIEFENABLEPIN) #TODO: make a button
+RELIEF_ENABLE.enable()
+
+HEATER_ENABLE = outputs.Enable(HEATERENABLEPIN) #TODO: put this on
+
 VALVE_RELIEF = outputs.ServoValve(RELIEFPIN)
 
 #Ignition
@@ -59,37 +68,47 @@ def update_outputs(stats):
 	if stats["Ignition"]:
 		OUTPUTS["Ignition"].start()
 
+dic = {'load' : 0.0, 'pressure' : 0.0, 'thermo' : 0.0}
+data = json.dumps(dic)
+
 i = 0
 while True:
         print "----------------------------------------------"
         print "BEGIN LOOP " + str(i)
-        print "\n"
+        #print "\n"
 
-        dic = {'load' : 0.0, 'pressure' : 0.0, 'thermo' : 0.0}
-        data = json.dumps(dic)
+        # dic = {'load' : 0.0, 'pressure' : 0.0, 'thermo' : 0.0}
+        # data = json.dumps(dic)
 
-        print "DATA:"
-        print data
+        #print "DATA:"
+        #print data
         print "SENDING..."
-        serversocket.sendto(data, address_u)
-        #connection.send(data)
-        print "done."
+        try:
+            serversocket.sendto(data, address_u)
+            #connection.send(data)
+            print "done."
+        except:
+            print "failed."
         print "\n"
 
         print "RECEIVING..."
-        received, addr = serversocket.recvfrom(1024)
-        #received = connection.recv(1024)
-        print "done."
-        print "RECEIVED:"
-        print received
-        print "\n"
-        stats = json.loads(received)
+        try:
+            received, addr = serversocket.recvfrom(1024)
+            #received = connection.recv(1024)
+            print "done."
+            #print "RECEIVED:"
+            #print received
+            #print "\n"
+            stats = json.loads(received)
+            print "UPDATING OUTPUTS"
+            update_outputs(stats)
+            print "done."
+        except:
+            print "failed"
+        #print"\n"
 
-        print "UPDATING OUTPUTS"
-        update_outputs(stats)
-        print "done."
-        print"\n"
-
+        print "Sleeping"
+        time.sleep(0.1)
 
         print "END LOOP " + str(i)
         print "----------------------------------------------\n"
