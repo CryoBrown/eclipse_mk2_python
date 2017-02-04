@@ -39,6 +39,17 @@ class ServoValve(GenericValve):
         pwm.start(self.pin, 10, 100)
         pwm.stop(self.pin)
 
+class Enable:
+    def __init__(self, pin):
+        self.pin = pin
+        gpio.setup(self.pin, GPIO.OUT)
+
+    def enable(self):
+        gpio.output(self.pin, GPIO.HIGH)
+
+    def disable(self):
+        gpio.output(self.pin, GPIO.LOW)
+
 
 class Ignition:
 

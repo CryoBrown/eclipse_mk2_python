@@ -30,13 +30,15 @@ serversocket.bind(address_me)
 # connection, address = serversocket.accept()
 
 FILLPIN = 19
-RELIEFPIN = 16
 VENTPIN = 26
-IGNITIONPIN = 20
+RELIEFENABLEPIN = 16
+RELIEFPIN = 4 #20 when the wiring permits?
+IGNITIONPIN = 17 #21 when the wiring permits?
 
 VALVE_FILL = outputs.BallValve(FILLPIN)
 VALVE_VENT = outputs.BallValve(VENTPIN)
 
+RELIEF_ENABLE = outputs.Enable(RELIEFENABLEPIN)
 VALVE_RELIEF = outputs.ServoValve(RELIEFPIN)
 
 #Ignition
