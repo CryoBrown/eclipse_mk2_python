@@ -30,14 +30,13 @@ class ServoValve(GenericValve):
 
     def __init__(self, pin):
         self.pin = pin
+	pwm.start(self.pin, 13, 100)
 
     def open(self):
-        pwm.start(self.pin, 15, 100)
-        pwm.stop(self.pin)
+        pwm.set_duty_cycle(self.pin, 21)
 
     def close(self):
-        pwm.start(self.pin, 10, 100)
-        pwm.stop(self.pin)
+        pwm.set_duty_cycle(self.pin, 13)
 
 class Enable:
     def __init__(self, pin):
@@ -57,9 +56,8 @@ class Ignition:
         self.pin = pin
         gpio.setup(self.pin, GPIO.OUT)
 
-    def start(self, p, m, s):
-        if p and m and s:
-            gpio.output(self.pin, GPIO.HIGH)
+    def start(self):
+        gpio.output(self.pin, GPIO.HIGH)
 
     def stop(self):
         gpio.output(self.pin, GPIO.LOW)
